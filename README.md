@@ -1,2 +1,2 @@
-# autostocks
+# Autostocks
 Automated Robinhood stock trader
