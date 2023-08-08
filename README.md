@@ -7,3 +7,5 @@ Personalize the code:
 - Refer to robin-stocks documentation for MFA.
 - strategy_example.py file is a simple moving average indicator strategy. Feel free to code your own strategy.
 - 
+
+Inspiration: ComputerGuyChris YT Channel
