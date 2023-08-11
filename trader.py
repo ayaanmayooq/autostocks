@@ -67,17 +67,18 @@ def get_holdings_and_bought_price(stocks):
 
     return holdings, bought_price
 
-def build_dataframes(df_trades, trade_dict, df_prices, price_dict):
+def build_dataframes(df_trades, trade_dict, df_prices, price_dict, df_ema9, ema9_dict):
     time_now = str(dt.datetime.now().time())[:8]
     df_trades.loc[time_now] = trade_dict
     df_prices.loc[time_now] = price_dict
+    df_ema9.loc[time_now] = ema9_dict
     return df_trades, df_prices
 
 
 if __name__ == "__main__":
     login(1)
 
-    stocks = ['TSLA', 'AMZN', 'GOOGL']
+    stocks = ['GOOGL', 'TSLA', 'AMZN', 'AAPL', 'MSFT']
 
     print('stocks:', stocks)
     # cash, equity = get_cash()
@@ -90,8 +91,15 @@ if __name__ == "__main__":
 
     trade_dict = {stocks[i]: 0 for i in range(0, len(stocks))}
     price_dict = {stocks[i]: 0 for i in range(0, len(stocks))}
+    ema9_dict = {stocks[i]: 0 for i in range(0, len(stocks))}
+    ema21_dict = {stocks[i]: 0 for i in range(0, len(stocks))}
+    ema50_dict = {stocks[i]: 0 for i in range(0, len(stocks))}
+
     df_trades = pd.DataFrame(columns=stocks)
     df_prices = pd.DataFrame(columns=stocks)
+    df_ema9 = pd.DataFrame(columns=stocks)
+    df_ema21 = pd.DataFrame(columns=stocks)
+    df_ema50 = pd.DataFrame(columns=stocks)
 
     while open_market():
         strat.update_runtime()
@@ -109,6 +117,7 @@ if __name__ == "__main__":
         for stock, price in zip(stocks, prices):
             price = float(price)
             print('{} = ${}'.format(stock, price))
+            print(rh.stocks.get_latest_price(stock))
 
             trade = strat.trade_option(stock, price)
             print('trade:', trade)
@@ -127,6 +136,9 @@ if __name__ == "__main__":
             elif not portfolio.get_holding(stock) and trade != "BUY":
                 trade = "WAIT"
             trade_dict[stock] = trade
+            ema9_dict[stock] = strat.ema_9[stock]
+            ema21_dict[stock] = strat.ema_21[stock]
+            ema50_dict[stock] = strat.ema_50[stock]
 
             # if trade == "BUY":
             #     allowable_holdings = int((cash / 10) / price)
@@ -143,8 +155,17 @@ if __name__ == "__main__":
             #     trade = "WAIT"
             # trade_dict[stock] = trade
 
-        df_trades, df_prices = build_dataframes(df_trades, trade_dict, df_prices, price_dict)
-        grapher.active_graph(grapher.normalize(df_prices), df_trades)
+        print("indicators:")
+        print("EMA(9):", strat.ema_9)
+        print("EMA(21)", strat.ema_21)
+        print("EMA(50)", strat.ema_50)
+        print("MACD(12, 26, 9):")
+        print("MACD line:", strat.macd_line)
+        print("Signal line:", strat.macd_signal_line)
+
+        df_trades, df_prices = build_dataframes(df_trades, trade_dict, df_prices, price_dict, df_ema9, ema9_dict)
+        # grapher.active_graph(grapher.normalize(df_prices), df_trades)
+        # grapher.stock_graph('GOOGL', df_prices, df_ema9, df_ema9, df_ema9)
 
         print("Portfolio value:", portfolio.calculate_portfolio_value())
 

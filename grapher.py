@@ -41,3 +41,13 @@ def active_graph(df, df_trades, pause=1):
     plt.draw()
     plt.savefig(str(dt.date.today()))
     plt.pause(pause)
+
+def stock_graph(stock, df_prices, df_ema9, df_ema21, df_ema50):
+    plt.plot(df_prices[stock])
+
+    # Plotting EMAs
+    plt.plot(df_ema9[stock])
+    plt.plot(df_ema21[stock])
+    plt.plot(df_ema50[stock])
+
+    plt.show()
